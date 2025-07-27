@@ -9,10 +9,10 @@ class ExternalAPI:
     def fetch_data():
         url = os.getenv("URL_API_GATEWAY")
 
+        token = os.getenv("TOKEN_API")
         headers = {
-            "Authorization": os.getenv("TOKEN_API")
+            "Authorization": f"Bearer {token}" if token else ""
         }
 
         response = requests.get(url, headers=headers)
-
         return response.json() if response.status_code == 200 else []
