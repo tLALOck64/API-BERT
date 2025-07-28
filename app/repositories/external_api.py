@@ -6,7 +6,7 @@ load_dotenv()
 class ExternalAPI:
 
     @staticmethod
-    def fetch_data():
+    def fetch_data(complement):
         url = os.getenv("URL_API_GATEWAY")
 
         token = os.getenv("TOKEN_API")
@@ -14,5 +14,5 @@ class ExternalAPI:
             "Authorization": f"Bearer {token}" if token else ""
         }
 
-        response = requests.get(url, headers=headers)
+        response = requests.get(url + complement, headers=headers)
         return response.json() if response.status_code == 200 else []

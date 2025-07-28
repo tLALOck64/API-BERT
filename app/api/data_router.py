@@ -27,3 +27,26 @@ def export_data():
             "status": "error",
             "message": f"Error interno: {str(e)}"
         }
+    
+@router.get("/users")
+def export_users_csv():
+    try:
+        result = DataService.get_data_users_data_csv()
+
+        if result["success"]:
+            return {
+                "status": "success",
+                "message": "Dataset creado",
+                "data": result
+            }
+        else:
+            return{
+                "status": "error",
+                "message": result["message"],
+                "data": result
+            }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Error interno: {str(e)}"
+        }

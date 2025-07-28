@@ -1,10 +1,12 @@
 import pandas as pd
 import re
 import boto3
-from botocore.exceptions import NoCredentialsError, ClientError
+from app.services.s3_service import S3Service
+from botocore.exceptions import NoCredentialsError
 from transformers import pipeline
 import os
 from dotenv import load_dotenv
+
 
 load_dotenv()
 
@@ -212,22 +214,8 @@ class SentimentAnalysisService:
         df_agrupado['estrella_promedio'] = df_agrupado['estrella_promedio'].round(1)
         
         return df_agrupado
-    
-    def subir_archivo_s3(self, bucket_name: str, file_path: str, object_key: str) -> bool:
-        try:
-            s3_client = boto3.client(
-                's3',
-                aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
-                aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
-                aws_session_token = os.getenv('AWS_SESSION_TOKEN'),
-                region_name = os.getenv('AWS_DEFAULT_REGION', 'us-east-1')
-            )
-            s3_client.upload_file(file_path, bucket_name, object_key)
-            print(f"Archivo {file_path} subido a s3://{bucket_name}/{object_key}")
-            return True
-        except ClientError as e:
-            print(f"Error al subir archivo a S3: {e}")
-            return False
+
+
 
     def procesar_dataset(self) -> dict:
         try:
@@ -286,12 +274,12 @@ class SentimentAnalysisService:
             df_detallado.to_csv(path_detallado, index=False)
 
             # Subir ambos archivos a S3
-            bucket_name = "dataleak-nativox-integrador" 
+            BUCKET_NAME = os.getenv('S3_BUCKET_NAME')
             object_key_resumen = os.path.basename(self.RESULTADO_PATH)
             object_key_detallado = os.path.basename(path_detallado)
 
-            self.subir_archivo_s3(bucket_name, self.RESULTADO_PATH, object_key_resumen)
-            self.subir_archivo_s3(bucket_name, path_detallado, object_key_detallado)
+            S3Service.subir_archivo(BUCKET_NAME, self.RESULTADO_PATH, object_key_resumen)
+            S3Service.subir_archivo(BUCKET_NAME, path_detallado, object_key_detallado)
 
             return {
                 "success": True,
