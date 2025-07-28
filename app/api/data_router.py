@@ -19,8 +19,7 @@ def export_data():
         else:
             return {
                 "status": "error",
-                "message": result["message"],
-                "data": result
+                "message": result["message"]
             }
     except Exception as e:
         return {
