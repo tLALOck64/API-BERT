@@ -67,7 +67,6 @@ uvicorn app.main:app --reload
 
 - Accede a la documentación interactiva en `http://localhost:8000/docs` para probar los endpoints disponibles.
 - Los endpoints principales se encuentran bajo el prefijo `/data`.
-- Para operaciones con S3, utiliza los endpoints definidos en `s3.py`.
 
 ## Notas
 - Los archivos de configuración y credenciales (`.env`, `.venv`, `datasets/`, `__pycache__/`) están excluidos del control de versiones mediante `.gitignore`.
