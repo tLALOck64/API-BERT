@@ -273,30 +273,32 @@ class SentimentAnalysisService:
             
             # Generar dataset resumen
             df_resumen = self.generar_dataset_resumen(resultados)
-            
+
             # Crear directorio de resultados si no existe
             os.makedirs(os.path.dirname(self.RESULTADO_PATH), exist_ok=True)
-            
-            # Guardar resultados
+
+            # Guardar resultados resumen
             df_resumen.to_csv(self.RESULTADO_PATH, index=False)
 
-            bucket_name = "dataleak-nativox-integrador"  # Cambia por el bucket real
-            object_key_resumen = os.path.basename(self.RESULTADO_PATH)
-            object_key_detallado = os.path.basename(self.RESULTADO_PATH.replace('.csv', '_detallado.csv'))
-
-            self.subir_archivo_s3(bucket_name, self.RESULTADO_PATH, object_key_resumen)
-            self.subir_archivo_s3(bucket_name, self.RESULTADO_PATH.replace('.csv', '_detallado.csv'), object_key_detallado)
-            
             # Guardar resultados detallados
             df_detallado = pd.DataFrame(resultados)
-            df_detallado.to_csv(self.RESULTADO_PATH.replace('.csv', '_detallado.csv'), index=False)
-            
+            path_detallado = self.RESULTADO_PATH.replace('.csv', '_detallado.csv')
+            df_detallado.to_csv(path_detallado, index=False)
+
+            # Subir ambos archivos a S3
+            bucket_name = "dataleak-nativox-integrador" 
+            object_key_resumen = os.path.basename(self.RESULTADO_PATH)
+            object_key_detallado = os.path.basename(path_detallado)
+
+            self.subir_archivo_s3(bucket_name, self.RESULTADO_PATH, object_key_resumen)
+            self.subir_archivo_s3(bucket_name, path_detallado, object_key_detallado)
+
             return {
                 "success": True,
                 "message": "Análisis completado exitosamente",
                 "total_comentarios": len(resultados),
                 "archivo_resumen": self.RESULTADO_PATH,
-                "archivo_detallado": self.RESULTADO_PATH.replace('.csv', '_detallado.csv'),
+                "archivo_detallado": path_detallado,
                 "resumen": df_resumen.to_dict('records')
             }
             
